@@ -39,12 +39,35 @@ class YoutubeResolver {
     return true;
   }
 
+  String _parsePublished(dynamic raw) {
+    final s = raw?.toString().trim() ?? '';
+    return s.isEmpty ? 'Unknown date' : s;
+  }
+
+  String _thumbById(String id) => 'https://i.ytimg.com/vi/$id/hqdefault.jpg';
+
+  String _parseThumb(dynamic thumbs, String id) {
+    try {
+      final hq = thumbs?.highResUrl?.toString();
+      if (hq != null && hq.isNotEmpty) return hq;
+      final max = thumbs?.maxResUrl?.toString();
+      if (max != null && max.isNotEmpty) return max;
+      final std = thumbs?.standardResUrl?.toString();
+      if (std != null && std.isNotEmpty) return std;
+      final med = thumbs?.mediumResUrl?.toString();
+      if (med != null && med.isNotEmpty) return med;
+    } catch (_) {}
+    return _thumbById(id);
+  }
+
   MediaCandidate _toCandidate(dynamic v) {
     final id = v.id.value.toString();
     final url = 'https://www.youtube.com/watch?v=$id';
     return MediaCandidate(
       title: v.title.toString(),
       author: _parseAuthor(v.author),
+      publishedText: _parsePublished(v.uploadDate),
+      thumbnailUrl: _parseThumb(v.thumbnails, id),
       duration: _parseDuration(v.duration),
       sourceUrl: url,
       streamUrl: '',
@@ -90,6 +113,8 @@ class YoutubeResolver {
     return MediaCandidate(
       title: video.title,
       author: _parseAuthor(video.author),
+      publishedText: '',
+      thumbnailUrl: _thumbById(video.id.value),
       duration: video.duration,
       sourceUrl: youtubeUrl,
       streamUrl: muxed.url.toString(),

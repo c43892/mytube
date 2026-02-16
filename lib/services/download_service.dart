@@ -124,6 +124,10 @@ class DownloadService {
     return tasks.first;
   }
 
+  Future<void> cancelTask(String taskId) async {
+    await FlutterDownloader.cancel(taskId: taskId);
+  }
+
   Future<void> removeTask(String taskId) async {
     await FlutterDownloader.remove(taskId: taskId, shouldDeleteContent: true);
   }

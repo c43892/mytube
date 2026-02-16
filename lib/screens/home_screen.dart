@@ -23,6 +23,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final ReceivePort _port = ReceivePort();
 
   bool _busy = false;
+  bool _downloading = false;
+  String? _downloadingForUrl;
   String? _error;
   List<MediaCandidate> _videos = const [];
 
@@ -50,7 +52,11 @@ class _HomeScreenState extends State<HomeScreen> {
           filePath: _activeFilePath!,
           title: _activeTitle ?? 'video',
         );
-        setState(() => _busy = false);
+        setState(() {
+          _busy = false;
+          _downloading = false;
+          _downloadingForUrl = null;
+        });
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -62,6 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
         final l10n = AppLocalizations.of(context)!;
         setState(() {
           _busy = false;
+          _downloading = false;
+          _downloadingForUrl = null;
           _error = l10n.downloadTaskFailed;
         });
       }
@@ -109,9 +117,30 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _cancelActiveDownloadIfAny() async {
+    final taskId = _activeTaskId;
+    if (taskId == null) return;
+    try {
+      await _downloader.cancelTask(taskId);
+      await _downloader.removeTask(taskId);
+    } catch (_) {}
+    _activeTaskId = null;
+    _activeFilePath = null;
+    _activeSourceUrl = null;
+    _activeTitle = null;
+  }
+
   Future<void> _downloadAndPlay(MediaCandidate item) async {
+    if (_downloading && _activeSourceUrl == item.sourceUrl) return;
+
+    if (_downloading && _activeTaskId != null && _activeSourceUrl != item.sourceUrl) {
+      await _cancelActiveDownloadIfAny();
+    }
+
     setState(() {
       _busy = true;
+      _downloading = true;
+      _downloadingForUrl = item.sourceUrl;
       _error = null;
       _downloadProgress = 0;
     });
@@ -123,7 +152,11 @@ class _HomeScreenState extends State<HomeScreen> {
           filePath: cached,
           title: item.title,
         );
-        setState(() => _busy = false);
+        setState(() {
+          _busy = false;
+          _downloading = false;
+          _downloadingForUrl = null;
+        });
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => PlayerScreen(filePath: cached, isAudio: false)),
@@ -143,6 +176,8 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _error = l10n.downloadInitFailed(e.message ?? e.toString());
         _busy = false;
+        _downloading = false;
+        _downloadingForUrl = null;
       });
     } catch (e) {
       if (!mounted) return;
@@ -150,6 +185,8 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _error = l10n.downloadFailed(e.toString());
         _busy = false;
+        _downloading = false;
+        _downloadingForUrl = null;
       });
     }
   }
@@ -158,6 +195,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     IsolateNameServer.removePortNameMapping('downloader_send_port');
     _port.close();
+    if (_activeTaskId != null) {
+      _downloader.cancelTask(_activeTaskId!).catchError((_) {});
+    }
     _resolver.dispose();
     _searchController.dispose();
     super.dispose();
@@ -170,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text(l10n.appTitle),
         actions: [
-          IconButton(onPressed: _busy ? null : _loadHomeVideos, icon: const Icon(Icons.refresh)),
+          IconButton(onPressed: (_busy && !_downloading) ? null : _loadHomeVideos, icon: const Icon(Icons.refresh)),
         ],
       ),
       body: Padding(
@@ -192,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: TextField(
                       controller: _searchController,
                       textInputAction: TextInputAction.search,
-                      onSubmitted: (_) => _busy ? null : _searchVideos(),
+                      onSubmitted: (_) => (_busy && !_downloading) ? null : _searchVideos(),
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.search),
                         hintText: l10n.searchHint,
@@ -202,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(width: 8),
                   FilledButton.icon(
-                    onPressed: _busy ? null : _searchVideos,
+                    onPressed: (_busy && !_downloading) ? null : _searchVideos,
                     icon: const Icon(Icons.travel_explore),
                     label: Text(l10n.search),
                   ),
@@ -246,31 +286,63 @@ class _HomeScreenState extends State<HomeScreen> {
                         return Card(
                           child: InkWell(
                             borderRadius: BorderRadius.circular(16),
-                            onTap: _busy ? null : () => _downloadAndPlay(v),
+                            onTap: () => _downloadAndPlay(v),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    width: 56,
-                                    height: 56,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      color: Theme.of(context).colorScheme.primaryContainer,
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: SizedBox(
+                                      width: 96,
+                                      height: 56,
+                                      child: Stack(
+                                        fit: StackFit.expand,
+                                        children: [
+                                          Image.network(
+                                            v.thumbnailUrl,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) => Container(
+                                              color: Theme.of(context).colorScheme.primaryContainer,
+                                              child: const Icon(Icons.play_circle_fill_rounded, size: 28),
+                                            ),
+                                          ),
+                                          Container(
+                                            color: const Color(0x22000000),
+                                            alignment: Alignment.bottomRight,
+                                            padding: const EdgeInsets.all(4),
+                                            child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    child: const Icon(Icons.play_circle_fill_rounded, size: 28),
                                   ),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          v.title,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontWeight: FontWeight.w700),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                v.title,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(fontWeight: FontWeight.w700),
+                                              ),
+                                            ),
+                                            if (_downloadingForUrl == v.sourceUrl)
+                                              const Padding(
+                                                padding: EdgeInsets.only(left: 6),
+                                                child: SizedBox(
+                                                  width: 14,
+                                                  height: 14,
+                                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                                ),
+                                              ),
+                                          ],
                                         ),
                                         const SizedBox(height: 6),
                                         Text(
