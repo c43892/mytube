@@ -58,4 +58,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get unknownChannel => 'قناة غير معروفة';
+
+  @override
+  String get tabDefault => 'Default';
+
+  @override
+  String get tabHistory => 'History';
+
+  @override
+  String get tabFavorites => 'Favorites';
 }

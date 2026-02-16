@@ -18,5 +18,8 @@
   "video": "影片",
   "duration": "時長 {value}",
   "@duration": {"placeholders": {"value": {"type": "String"}}},
-  "unknownChannel": "未知頻道"
+  "unknownChannel": "未知頻道",
+  "tabDefault": "預設",
+  "tabHistory": "歷史",
+  "tabFavorites": "收藏"
 }

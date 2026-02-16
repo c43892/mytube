@@ -58,4 +58,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get unknownChannel => '알 수 없는 채널';
+
+  @override
+  String get tabDefault => 'Default';
+
+  @override
+  String get tabHistory => 'History';
+
+  @override
+  String get tabFavorites => 'Favorites';
 }

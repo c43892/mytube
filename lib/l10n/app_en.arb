@@ -20,5 +20,8 @@
   "video": "Video",
   "duration": "Duration {value}",
   "@duration": {"placeholders": {"value": {"type": "String"}}},
-  "unknownChannel": "Unknown Channel"
+  "unknownChannel": "Unknown Channel",
+  "tabDefault": "Default",
+  "tabHistory": "History",
+  "tabFavorites": "Favorites"
 }

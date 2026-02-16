@@ -193,6 +193,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown Channel'**
   String get unknownChannel;
+
+  /// No description provided for @tabDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get tabDefault;
+
+  /// No description provided for @tabHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get tabHistory;
+
+  /// No description provided for @tabFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get tabFavorites;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

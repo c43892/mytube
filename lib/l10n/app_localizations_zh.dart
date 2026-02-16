@@ -58,6 +58,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get unknownChannel => '未知频道';
+
+  @override
+  String get tabDefault => '默认';
+
+  @override
+  String get tabHistory => '历史';
+
+  @override
+  String get tabFavorites => '收藏';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -114,4 +123,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get unknownChannel => '未知頻道';
+
+  @override
+  String get tabDefault => '預設';
+
+  @override
+  String get tabHistory => '歷史';
+
+  @override
+  String get tabFavorites => '收藏';
 }

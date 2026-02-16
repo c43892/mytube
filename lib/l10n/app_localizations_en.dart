@@ -58,4 +58,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unknownChannel => 'Unknown Channel';
+
+  @override
+  String get tabDefault => 'Default';
+
+  @override
+  String get tabHistory => 'History';
+
+  @override
+  String get tabFavorites => 'Favorites';
 }

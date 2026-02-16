@@ -285,10 +285,10 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tabIndex,
         onDestinationSelected: (idx) => setState(() => _tabIndex = idx),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.shuffle_rounded), label: '默认'),
-          NavigationDestination(icon: Icon(Icons.history_rounded), label: '历史'),
-          NavigationDestination(icon: Icon(Icons.star_rounded), label: '收藏'),
+        destinations: [
+          NavigationDestination(icon: const Icon(Icons.shuffle_rounded), label: l10n.tabDefault),
+          NavigationDestination(icon: const Icon(Icons.history_rounded), label: l10n.tabHistory),
+          NavigationDestination(icon: const Icon(Icons.star_rounded), label: l10n.tabFavorites),
         ],
       ),
     );
