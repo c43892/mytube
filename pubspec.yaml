@@ -1,0 +1,33 @@
+name: yt_temp_player
+description: Android MVP - YouTube link parser + background downloader + temp playback
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^2.6.1
+  youtube_explode_dart: ^2.5.1
+  flutter_downloader: ^1.12.0
+  media_kit: ^1.2.2
+  media_kit_video: ^2.0.0
+  media_kit_libs_video: ^1.0.7
+  just_audio: ^0.10.5
+  audio_service: ^0.18.18
+  audio_session: ^0.2.2
+  path_provider: ^2.1.5
+  permission_handler: ^11.3.1
+  dio: ^5.9.0
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
