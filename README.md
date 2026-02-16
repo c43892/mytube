@@ -4,8 +4,9 @@ A Flutter-based mobile YouTube temporary player focused on Android first, with i
 
 ## What it does
 
-1. Download and play a specified YouTube video, with lock-screen/background playback support.
-2. Keep only video Favorites and History records.
+1. Download and play a YouTube videos, with lock-screen/background playback support.
+2. Keep video Favorites and History list.
+3. Remove ad.
 
 ## Tabs
 
