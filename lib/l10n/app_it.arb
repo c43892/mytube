@@ -1,0 +1,22 @@
+{
+  "@@locale": "it",
+  "appTitle": "Elenco video YouTube",
+  "searchHint": "Cerca video (Shorts filtrati)",
+  "search": "Cerca",
+  "loading": "Caricamento...",
+  "downloadingProgress": "Download: {progress}%",
+  "@downloadingProgress": {"placeholders": {"progress": {"type": "int"}}},
+  "loadHomeFailed": "Caricamento video home non riuscito: {error}",
+  "@loadHomeFailed": {"placeholders": {"error": {"type": "String"}}},
+  "searchFailed": "Ricerca non riuscita: {error}",
+  "@searchFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadInitFailed": "Inizializzazione download non riuscita: {error}",
+  "@downloadInitFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadFailed": "Download non riuscito: {error}",
+  "@downloadFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadTaskFailed": "Download fallito/annullato, riprova",
+  "video": "Video",
+  "duration": "Durata {value}",
+  "@duration": {"placeholders": {"value": {"type": "String"}}},
+  "unknownChannel": "Canale sconosciuto"
+}

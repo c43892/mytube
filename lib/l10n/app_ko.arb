@@ -1,0 +1,22 @@
+{
+  "@@locale": "ko",
+  "appTitle": "YouTube 동영상 목록",
+  "searchHint": "동영상 검색 (Shorts 필터링)",
+  "search": "검색",
+  "loading": "로딩 중...",
+  "downloadingProgress": "다운로드 중: {progress}%",
+  "@downloadingProgress": {"placeholders": {"progress": {"type": "int"}}},
+  "loadHomeFailed": "홈 영상 로드 실패: {error}",
+  "@loadHomeFailed": {"placeholders": {"error": {"type": "String"}}},
+  "searchFailed": "검색 실패: {error}",
+  "@searchFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadInitFailed": "다운로드 초기화 실패: {error}",
+  "@downloadInitFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadFailed": "다운로드 실패: {error}",
+  "@downloadFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadTaskFailed": "다운로드 실패/취소됨, 다시 시도하세요",
+  "video": "동영상",
+  "duration": "길이 {value}",
+  "@duration": {"placeholders": {"value": {"type": "String"}}},
+  "unknownChannel": "알 수 없는 채널"
+}

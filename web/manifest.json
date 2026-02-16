@@ -1,6 +1,6 @@
 {
-    "name": "yt_temp_player",
-    "short_name": "yt_temp_player",
+    "name": "mytube_player",
+    "short_name": "mytube_player",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
@@ -33,3 +33,4 @@
         }
     ]
 }
+

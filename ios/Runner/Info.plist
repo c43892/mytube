@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>yt_temp_player</string>
+	<string>mytube_player</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -72,3 +72,4 @@
 	</array>
 </dict>
 </plist>
+

@@ -1,0 +1,22 @@
+{
+  "@@locale": "de",
+  "appTitle": "YouTube-Videoliste",
+  "searchHint": "Videos suchen (Shorts gefiltert)",
+  "search": "Suchen",
+  "loading": "Lädt...",
+  "downloadingProgress": "Herunterladen: {progress}%",
+  "@downloadingProgress": {"placeholders": {"progress": {"type": "int"}}},
+  "loadHomeFailed": "Startvideos konnten nicht geladen werden: {error}",
+  "@loadHomeFailed": {"placeholders": {"error": {"type": "String"}}},
+  "searchFailed": "Suche fehlgeschlagen: {error}",
+  "@searchFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadInitFailed": "Download-Initialisierung fehlgeschlagen: {error}",
+  "@downloadInitFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadFailed": "Download fehlgeschlagen: {error}",
+  "@downloadFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadTaskFailed": "Download fehlgeschlagen/abgebrochen, bitte erneut versuchen",
+  "video": "Video",
+  "duration": "Dauer {value}",
+  "@duration": {"placeholders": {"value": {"type": "String"}}},
+  "unknownChannel": "Unbekannter Kanal"
+}

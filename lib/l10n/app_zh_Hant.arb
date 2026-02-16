@@ -1,0 +1,22 @@
+{
+  "@@locale": "zh_Hant",
+  "appTitle": "YouTube 影片列表",
+  "searchHint": "搜尋影片（已過濾 Shorts）",
+  "search": "搜尋",
+  "loading": "載入中...",
+  "downloadingProgress": "下載中：{progress}%",
+  "@downloadingProgress": {"placeholders": {"progress": {"type": "int"}}},
+  "loadHomeFailed": "載入首頁影片失敗：{error}",
+  "@loadHomeFailed": {"placeholders": {"error": {"type": "String"}}},
+  "searchFailed": "搜尋失敗：{error}",
+  "@searchFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadInitFailed": "下載初始化失敗：{error}",
+  "@downloadInitFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadFailed": "下載失敗：{error}",
+  "@downloadFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadTaskFailed": "下載失敗/已取消，請重試",
+  "video": "影片",
+  "duration": "時長 {value}",
+  "@duration": {"placeholders": {"value": {"type": "String"}}},
+  "unknownChannel": "未知頻道"
+}

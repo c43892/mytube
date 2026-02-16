@@ -18,7 +18,7 @@ Future<AppAudioHandler> ensureAudioHandler() {
   return _audioHandlerFuture ??= AudioService.init(
     builder: () => AppAudioHandler(),
     config: const AudioServiceConfig(
-      androidNotificationChannelId: 'com.yt_temp_player.audio',
+      androidNotificationChannelId: 'com.mytube_player.audio',
       androidNotificationChannelName: 'Media Playback',
       androidNotificationOngoing: true,
       androidStopForegroundOnPause: true,
@@ -49,8 +49,7 @@ Future<void> main() async {
     debugPrint('[startup] flutter_downloader init failed: $e\n$st');
   }
 
-  // 音频后台服务改为懒初始化：首次进入音频播放页再初始化，避免启动卡 logo。
-  runApp(const ProviderScope(child: YtTempPlayerApp()));
+  // 音频后台服务改为懒初始化：首次进入音频播放页再初始化，避免启动卡 logo�?  runApp(const ProviderScope(child: YtTempPlayerApp()));
 }
 
 class YtTempPlayerApp extends StatelessWidget {
@@ -92,3 +91,4 @@ class YtTempPlayerApp extends StatelessWidget {
     );
   }
 }
+

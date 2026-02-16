@@ -1,0 +1,22 @@
+{
+  "@@locale": "pt",
+  "appTitle": "Lista de vídeos do YouTube",
+  "searchHint": "Pesquisar vídeos (Shorts filtrados)",
+  "search": "Pesquisar",
+  "loading": "Carregando...",
+  "downloadingProgress": "Baixando: {progress}%",
+  "@downloadingProgress": {"placeholders": {"progress": {"type": "int"}}},
+  "loadHomeFailed": "Falha ao carregar vídeos iniciais: {error}",
+  "@loadHomeFailed": {"placeholders": {"error": {"type": "String"}}},
+  "searchFailed": "Falha na pesquisa: {error}",
+  "@searchFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadInitFailed": "Falha ao iniciar download: {error}",
+  "@downloadInitFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadFailed": "Falha no download: {error}",
+  "@downloadFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadTaskFailed": "Download falhou/cancelado, tente novamente",
+  "video": "Vídeo",
+  "duration": "Duração {value}",
+  "@duration": {"placeholders": {"value": {"type": "String"}}},
+  "unknownChannel": "Canal desconhecido"
+}

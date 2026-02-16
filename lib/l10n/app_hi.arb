@@ -1,0 +1,22 @@
+{
+  "@@locale": "hi",
+  "appTitle": "YouTube वीडियो सूची",
+  "searchHint": "वीडियो खोजें (Shorts फ़िल्टर किए गए)",
+  "search": "खोजें",
+  "loading": "लोड हो रहा है...",
+  "downloadingProgress": "डाउनलोड हो रहा है: {progress}%",
+  "@downloadingProgress": {"placeholders": {"progress": {"type": "int"}}},
+  "loadHomeFailed": "होम वीडियो लोड नहीं हुए: {error}",
+  "@loadHomeFailed": {"placeholders": {"error": {"type": "String"}}},
+  "searchFailed": "खोज विफल: {error}",
+  "@searchFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadInitFailed": "डाउनलोड शुरू करने में विफल: {error}",
+  "@downloadInitFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadFailed": "डाउनलोड विफल: {error}",
+  "@downloadFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadTaskFailed": "डाउनलोड विफल/रद्द, कृपया फिर से प्रयास करें",
+  "video": "वीडियो",
+  "duration": "अवधि {value}",
+  "@duration": {"placeholders": {"value": {"type": "String"}}},
+  "unknownChannel": "अज्ञात चैनल"
+}

@@ -1,0 +1,22 @@
+{
+  "@@locale": "ar",
+  "appTitle": "قائمة فيديوهات YouTube",
+  "searchHint": "ابحث عن فيديوهات (تمت تصفية Shorts)",
+  "search": "بحث",
+  "loading": "جارٍ التحميل...",
+  "downloadingProgress": "جارٍ التنزيل: {progress}%",
+  "@downloadingProgress": {"placeholders": {"progress": {"type": "int"}}},
+  "loadHomeFailed": "فشل تحميل فيديوهات الصفحة الرئيسية: {error}",
+  "@loadHomeFailed": {"placeholders": {"error": {"type": "String"}}},
+  "searchFailed": "فشل البحث: {error}",
+  "@searchFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadInitFailed": "فشل تهيئة التنزيل: {error}",
+  "@downloadInitFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadFailed": "فشل التنزيل: {error}",
+  "@downloadFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadTaskFailed": "فشل/أُلغي التنزيل، حاول مرة أخرى",
+  "video": "فيديو",
+  "duration": "المدة {value}",
+  "@duration": {"placeholders": {"value": {"type": "String"}}},
+  "unknownChannel": "قناة غير معروفة"
+}

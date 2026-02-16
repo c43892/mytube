@@ -1,0 +1,22 @@
+{
+  "@@locale": "zh",
+  "appTitle": "YouTube 视频列表",
+  "searchHint": "搜索视频（已过滤 Shorts）",
+  "search": "搜索",
+  "loading": "加载中...",
+  "downloadingProgress": "下载中：{progress}%",
+  "@downloadingProgress": {"placeholders": {"progress": {"type": "int"}}},
+  "loadHomeFailed": "加载首页视频失败：{error}",
+  "@loadHomeFailed": {"placeholders": {"error": {"type": "String"}}},
+  "searchFailed": "搜索失败：{error}",
+  "@searchFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadInitFailed": "下载初始化失败：{error}",
+  "@downloadInitFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadFailed": "下载失败：{error}",
+  "@downloadFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadTaskFailed": "下载失败/已取消，请重试",
+  "video": "视频",
+  "duration": "时长 {value}",
+  "@duration": {"placeholders": {"value": {"type": "String"}}},
+  "unknownChannel": "未知频道"
+}

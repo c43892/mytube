@@ -1,0 +1,24 @@
+{
+  "@@locale": "en",
+  "appTitle": "YouTube Video List",
+  "searchHint": "Search videos (Shorts filtered)",
+  "search": "Search",
+  "loading": "Loading...",
+  "downloadingProgress": "Downloading: {progress}%",
+  "@downloadingProgress": {
+    "placeholders": {"progress": {"type": "int"}}
+  },
+  "loadHomeFailed": "Failed to load home videos: {error}",
+  "@loadHomeFailed": {"placeholders": {"error": {"type": "String"}}},
+  "searchFailed": "Search failed: {error}",
+  "@searchFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadInitFailed": "Download init failed: {error}",
+  "@downloadInitFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadFailed": "Download failed: {error}",
+  "@downloadFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadTaskFailed": "Download failed/cancelled, please retry",
+  "video": "Video",
+  "duration": "Duration {value}",
+  "@duration": {"placeholders": {"value": {"type": "String"}}},
+  "unknownChannel": "Unknown Channel"
+}

@@ -147,21 +147,21 @@ class _PlayerScreenState extends State<PlayerScreen> with WidgetsBindingObserver
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            FilledButton.tonalIcon(
-                              onPressed: _player.pause,
-                              icon: const Icon(Icons.pause),
-                              label: const Text('Pause'),
-                            ),
-                            const SizedBox(width: 10),
-                            FilledButton.icon(
-                              onPressed: _player.play,
-                              icon: const Icon(Icons.play_arrow),
-                              label: const Text('Play'),
-                            ),
-                          ],
+                        StreamBuilder<bool>(
+                          stream: _player.stream.playing,
+                          builder: (context, playingSnap) {
+                            final isPlaying = playingSnap.data ?? false;
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                FilledButton.icon(
+                                  onPressed: isPlaying ? _player.pause : _player.play,
+                                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                                  label: Text(isPlaying ? 'Pause' : 'Play'),
+                                ),
+                              ],
+                            );
+                          },
                         )
                       ],
                     );

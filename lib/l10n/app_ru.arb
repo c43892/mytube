@@ -1,0 +1,22 @@
+{
+  "@@locale": "ru",
+  "appTitle": "Список видео YouTube",
+  "searchHint": "Поиск видео (Shorts отфильтрованы)",
+  "search": "Поиск",
+  "loading": "Загрузка...",
+  "downloadingProgress": "Скачивание: {progress}%",
+  "@downloadingProgress": {"placeholders": {"progress": {"type": "int"}}},
+  "loadHomeFailed": "Не удалось загрузить главные видео: {error}",
+  "@loadHomeFailed": {"placeholders": {"error": {"type": "String"}}},
+  "searchFailed": "Ошибка поиска: {error}",
+  "@searchFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadInitFailed": "Ошибка инициализации загрузки: {error}",
+  "@downloadInitFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadFailed": "Ошибка загрузки: {error}",
+  "@downloadFailed": {"placeholders": {"error": {"type": "String"}}},
+  "downloadTaskFailed": "Загрузка не удалась/отменена, повторите попытку",
+  "video": "Видео",
+  "duration": "Длительность {value}",
+  "@duration": {"placeholders": {"value": {"type": "String"}}},
+  "unknownChannel": "Неизвестный канал"
+}
