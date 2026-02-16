@@ -28,6 +28,19 @@ A Flutter-based mobile YouTube temporary player focused on Android first, with i
 - `media_kit` + `audio_service` (playback and background audio)
 - `path_provider` (local storage)
 
+## Version requirements
+
+- **Flutter SDK (recommended):** `3.41.1`
+- **Dart SDK constraint (from pubspec):** `>=3.10.0 <4.0.0`
+- **Android SDK:** compile/target SDK 36 (project config)
+
+Before running, verify your Flutter installation:
+
+```bash
+flutter --version
+flutter doctor
+```
+
 ## Run (Android)
 
 ```bash
