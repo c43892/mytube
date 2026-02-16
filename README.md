@@ -4,14 +4,8 @@ A Flutter-based mobile YouTube temporary player focused on Android first, with i
 
 ## What it does
 
-- Shows a default video list on launch (no manual URL input required)
-- Supports keyword search
-- Filters out Shorts aggressively
-- Tap any list item to download and play
-- Supports background / lock-screen playback handoff
-- Stores playback history locally (offline)
-- Stores favorites locally (offline)
-- Supports multi-language UI with system-language auto selection
+1. Download and play a specified YouTube video, with lock-screen/background playback support.
+2. Keep only video Favorites and History records.
 
 ## Tabs
 
