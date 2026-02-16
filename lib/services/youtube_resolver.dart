@@ -124,54 +124,6 @@ class YoutubeResolver {
     return File('${dir.path}${Platform.pathSeparator}daily_hot_queries.json');
   }
 
-  Future<File> _homeSnapshotFile() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}${Platform.pathSeparator}default_home_snapshot.json');
-  }
-
-  Map<String, dynamic> _mediaToJson(MediaCandidate m) => {
-        'title': m.title,
-        'author': m.author,
-        'publishedAt': m.publishedAt?.toIso8601String(),
-        'thumbnailUrl': m.thumbnailUrl,
-        'durationSec': m.duration?.inSeconds,
-        'sourceUrl': m.sourceUrl,
-      };
-
-  MediaCandidate _mediaFromJson(Map<String, dynamic> j) {
-    final sec = j['durationSec'] is int ? j['durationSec'] as int : int.tryParse('${j['durationSec']}');
-    return MediaCandidate(
-      title: '${j['title'] ?? ''}',
-      author: '${j['author'] ?? ''}',
-      publishedAt: DateTime.tryParse('${j['publishedAt'] ?? ''}'),
-      thumbnailUrl: '${j['thumbnailUrl'] ?? ''}',
-      duration: sec == null ? null : Duration(seconds: sec),
-      sourceUrl: '${j['sourceUrl'] ?? ''}',
-      streamUrl: '',
-      isAudio: false,
-      fileExt: 'mp4',
-    );
-  }
-
-  Future<List<MediaCandidate>> _loadHomeSnapshot() async {
-    final f = await _homeSnapshotFile();
-    if (!await f.exists()) return const [];
-    try {
-      final raw = jsonDecode(await f.readAsString());
-      if (raw is! List) return const [];
-      return raw.whereType<Map>().map((e) => _mediaFromJson(Map<String, dynamic>.from(e))).toList();
-    } catch (_) {
-      return const [];
-    }
-  }
-
-  Future<void> _saveHomeSnapshot(List<MediaCandidate> list) async {
-    final f = await _homeSnapshotFile();
-    try {
-      await f.writeAsString(jsonEncode(list.map(_mediaToJson).toList()), flush: true);
-    } catch (_) {}
-  }
-
   List<String> _parseRssTitles(String xml) {
     final reg = RegExp(r'<title(?:[^>]*)>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>', dotAll: true, caseSensitive: false);
     final out = <String>[];
@@ -234,13 +186,8 @@ class YoutubeResolver {
   }
 
   Future<List<MediaCandidate>> fetchHomeVideos({int max = 20, bool strongRandom = false}) async {
+    // Memory-only cache: app alive期间复用，重启后不保留。
     if (_homeCache.isNotEmpty) return _homeCache.take(max).toList();
-
-    final saved = await _loadHomeSnapshot();
-    if (saved.isNotEmpty) {
-      _homeCache = saved;
-      return saved.take(max).toList();
-    }
 
     if (_inBackoff()) {
       throw Exception('请求过于频繁，稍后再试');
@@ -262,7 +209,6 @@ class YoutubeResolver {
 
       final result = dedup.values.take(max).toList();
       _homeCache = result;
-      await _saveHomeSnapshot(result);
       _markSuccess();
       return result;
     } catch (e) {
