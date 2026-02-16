@@ -9,9 +9,9 @@ bg = Image.new('RGBA', (size, size))
 bd = ImageDraw.Draw(bg)
 for y in range(size):
     t = y / (size - 1)
-    r = int(225 * (1 - t) + 255 * t)
-    g = int(35 * (1 - t) + 80 * t)
-    b = int(45 * (1 - t) + 130 * t)
+    r = int(30 * (1 - t) + 70 * t)
+    g = int(90 * (1 - t) + 150 * t)
+    b = int(220 * (1 - t) + 255 * t)
     bd.line([(0, y), (size, y)], fill=(r, g, b, 255))
 
 mask = Image.new('L', (size, size), 0)

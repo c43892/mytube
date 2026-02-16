@@ -224,7 +224,18 @@ class YoutubeResolver {
     try {
       final list = await _searchWithRetry(keyword);
       _markSuccess();
-      return list.where(_isNormalVideo).take(max).map(_toCandidate).toList();
+
+      final items = list.where(_isNormalVideo).map(_toCandidate).toList();
+      items.sort((a, b) {
+        final ad = a.publishedAt;
+        final bd = b.publishedAt;
+        if (ad == null && bd == null) return 0;
+        if (ad == null) return 1;
+        if (bd == null) return -1;
+        return bd.compareTo(ad); // newest first
+      });
+
+      return items.take(max).toList();
     } catch (_) {
       _markFailure();
       rethrow;
