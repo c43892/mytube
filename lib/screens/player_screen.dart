@@ -18,6 +18,7 @@ class _PlayerScreenState extends State<PlayerScreen> with WidgetsBindingObserver
   late final Player _player;
   late final VideoController _controller;
   AppAudioHandler? _bgHandler;
+  bool _handoffStarted = false;
 
   @override
   void initState() {
@@ -25,21 +26,19 @@ class _PlayerScreenState extends State<PlayerScreen> with WidgetsBindingObserver
     WidgetsBinding.instance.addObserver(this);
     _player = Player();
     _controller = VideoController(_player);
-    _initPlayback();
+    _player.open(Media(widget.filePath));
+    if (!widget.isAudio) {
+      _prepareBackgroundHandler();
+    }
   }
 
-  Future<void> _initPlayback() async {
-    await _player.open(Media(widget.filePath));
-    await _player.setVolume(0); // 前台画面静音，统一走后台音频链路
-
-    if (!widget.isAudio) {
-      final h = await ensureAudioHandler();
-      _bgHandler = h;
-      final title = File(widget.filePath).uri.pathSegments.last;
-      await h.load(widget.filePath, title);
-      await h.play();
-      await _player.play();
-    }
+  Future<void> _prepareBackgroundHandler() async {
+    final h = await ensureAudioHandler();
+    if (!mounted) return;
+    _bgHandler = h;
+    final title = File(widget.filePath).uri.pathSegments.last;
+    await h.load(widget.filePath, title);
+    debugPrint('[bg-handoff] prepared for $title');
   }
 
   @override
@@ -51,40 +50,48 @@ class _PlayerScreenState extends State<PlayerScreen> with WidgetsBindingObserver
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      _player.pause();
+    if (state == AppLifecycleState.resumed) {
+      _handoffStarted = false;
+      _syncForegroundFromBackground();
       return;
     }
-    if (state == AppLifecycleState.resumed) {
-      _syncVideoToBackgroundAudio();
+    if (state == AppLifecycleState.paused && !widget.isAudio && !_handoffStarted) {
+      _handoffStarted = true;
+      _handoffToBackgroundAudio();
     }
   }
 
-  Future<void> _syncVideoToBackgroundAudio() async {
+  Future<void> _syncForegroundFromBackground() async {
     try {
       final h = _bgHandler;
       if (h == null) return;
-      final pos = h.rawPlayer.position;
-      await _player.seek(pos);
+      final bgPos = h.rawPlayer.position;
+      await h.pause();
+      await _player.seek(bgPos);
       await _player.play();
-      await _player.setVolume(0);
-    } catch (_) {}
+      debugPrint('[bg-handoff] sync foreground to ${bgPos.inSeconds}s');
+    } catch (e) {
+      debugPrint('[bg-handoff] sync foreground failed: $e');
+    }
   }
 
-  Future<void> _seekBoth(Duration position) async {
-    await _player.seek(position);
-    await _bgHandler?.seek(position);
-  }
+  Future<void> _handoffToBackgroundAudio() async {
+    try {
+      debugPrint('[bg-handoff] lifecycle paused, start handoff');
+      final pos = _player.state.position;
+      await _player.pause();
 
-  Future<void> _pauseBoth() async {
-    await _player.pause();
-    await _bgHandler?.pause();
-  }
+      final h = _bgHandler ?? await ensureAudioHandler();
+      final title = File(widget.filePath).uri.pathSegments.last;
+      await h.load(widget.filePath, title);
+      await h.seek(pos);
+      await h.play();
 
-  Future<void> _playBoth() async {
-    await _bgHandler?.play();
-    await _player.play();
-    await _player.setVolume(0);
+      debugPrint('[bg-handoff] handoff playing from ${pos.inSeconds}s');
+    } catch (e) {
+      debugPrint('[bg-handoff] failed: $e');
+      _handoffStarted = false;
+    }
   }
 
   @override
@@ -92,53 +99,77 @@ class _PlayerScreenState extends State<PlayerScreen> with WidgetsBindingObserver
     final title = File(widget.filePath).uri.pathSegments.last;
     return Scaffold(
       appBar: AppBar(title: Text(title, overflow: TextOverflow.ellipsis)),
-      body: Column(
+      body: ListView(
+        padding: const EdgeInsets.all(12),
         children: [
-          if (!widget.isAudio)
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Video(controller: _controller),
-            )
-          else
-            const Padding(
-              padding: EdgeInsets.all(24),
-              child: Icon(Icons.audiotrack, size: 80),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: Material(
+              color: Colors.black,
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: widget.isAudio
+                    ? const Center(child: Icon(Icons.audiotrack, size: 80, color: Colors.white70))
+                    : Video(controller: _controller),
+              ),
             ),
-          StreamBuilder<Duration>(
-            stream: _player.stream.position,
-            builder: (context, posSnap) {
-              return StreamBuilder<Duration>(
-                stream: _player.stream.duration,
-                builder: (context, durSnap) {
-                  final pos = posSnap.data ?? Duration.zero;
-                  final dur = durSnap.data ?? const Duration(seconds: 1);
-                  return Column(
-                    children: [
-                      Slider(
-                        value: pos.inMilliseconds.clamp(0, dur.inMilliseconds).toDouble(),
-                        max: dur.inMilliseconds.toDouble(),
-                        onChanged: (v) => _seekBoth(Duration(milliseconds: v.toInt())),
-                      ),
-                      Text('${_fmt(pos)} / ${_fmt(dur)}'),
-                    ],
-                  );
-                },
-              );
-            },
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                onPressed: _pauseBoth,
-                icon: const Icon(Icons.pause),
-              ),
-              IconButton(
-                onPressed: _playBoth,
-                icon: const Icon(Icons.play_arrow),
-              ),
-            ],
-          )
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: const [
+                BoxShadow(color: Color(0x12000000), blurRadius: 12, offset: Offset(0, 4)),
+              ],
+            ),
+            child: StreamBuilder<Duration>(
+              stream: _player.stream.position,
+              builder: (context, posSnap) {
+                return StreamBuilder<Duration>(
+                  stream: _player.stream.duration,
+                  builder: (context, durSnap) {
+                    final pos = posSnap.data ?? Duration.zero;
+                    final dur = durSnap.data ?? const Duration(seconds: 1);
+                    return Column(
+                      children: [
+                        Slider(
+                          value: pos.inMilliseconds.clamp(0, dur.inMilliseconds).toDouble(),
+                          max: dur.inMilliseconds.toDouble(),
+                          onChanged: (v) => _player.seek(Duration(milliseconds: v.toInt())),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(_fmt(pos), style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                            Text(_fmt(dur), style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            FilledButton.tonalIcon(
+                              onPressed: _player.pause,
+                              icon: const Icon(Icons.pause),
+                              label: const Text('Pause'),
+                            ),
+                            const SizedBox(width: 10),
+                            FilledButton.icon(
+                              onPressed: _player.play,
+                              icon: const Icon(Icons.play_arrow),
+                              label: const Text('Play'),
+                            ),
+                          ],
+                        )
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
