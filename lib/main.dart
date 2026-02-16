@@ -49,7 +49,8 @@ Future<void> main() async {
     debugPrint('[startup] flutter_downloader init failed: $e\n$st');
   }
 
-  // 音频后台服务改为懒初始化：首次进入音频播放页再初始化，避免启动卡 logo�?  runApp(const ProviderScope(child: YtTempPlayerApp()));
+  // Keep startup non-blocking.
+  runApp(const ProviderScope(child: YtTempPlayerApp()));
 }
 
 class YtTempPlayerApp extends StatelessWidget {
