@@ -10,8 +10,6 @@ class YoutubeResolver {
   final YoutubeExplode _yt = YoutubeExplode();
 
   List<MediaCandidate> _homeCache = const [];
-  DateTime? _homeCacheAt;
-  static const Duration _homeCacheTtl = Duration(minutes: 30);
 
   int _failCount = 0;
   DateTime? _backoffUntil;
@@ -126,6 +124,54 @@ class YoutubeResolver {
     return File('${dir.path}${Platform.pathSeparator}daily_hot_queries.json');
   }
 
+  Future<File> _homeSnapshotFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}${Platform.pathSeparator}default_home_snapshot.json');
+  }
+
+  Map<String, dynamic> _mediaToJson(MediaCandidate m) => {
+        'title': m.title,
+        'author': m.author,
+        'publishedAt': m.publishedAt?.toIso8601String(),
+        'thumbnailUrl': m.thumbnailUrl,
+        'durationSec': m.duration?.inSeconds,
+        'sourceUrl': m.sourceUrl,
+      };
+
+  MediaCandidate _mediaFromJson(Map<String, dynamic> j) {
+    final sec = j['durationSec'] is int ? j['durationSec'] as int : int.tryParse('${j['durationSec']}');
+    return MediaCandidate(
+      title: '${j['title'] ?? ''}',
+      author: '${j['author'] ?? ''}',
+      publishedAt: DateTime.tryParse('${j['publishedAt'] ?? ''}'),
+      thumbnailUrl: '${j['thumbnailUrl'] ?? ''}',
+      duration: sec == null ? null : Duration(seconds: sec),
+      sourceUrl: '${j['sourceUrl'] ?? ''}',
+      streamUrl: '',
+      isAudio: false,
+      fileExt: 'mp4',
+    );
+  }
+
+  Future<List<MediaCandidate>> _loadHomeSnapshot() async {
+    final f = await _homeSnapshotFile();
+    if (!await f.exists()) return const [];
+    try {
+      final raw = jsonDecode(await f.readAsString());
+      if (raw is! List) return const [];
+      return raw.whereType<Map>().map((e) => _mediaFromJson(Map<String, dynamic>.from(e))).toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  Future<void> _saveHomeSnapshot(List<MediaCandidate> list) async {
+    final f = await _homeSnapshotFile();
+    try {
+      await f.writeAsString(jsonEncode(list.map(_mediaToJson).toList()), flush: true);
+    } catch (_) {}
+  }
+
   List<String> _parseRssTitles(String xml) {
     final reg = RegExp(r'<title(?:[^>]*)>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>', dotAll: true, caseSensitive: false);
     final out = <String>[];
@@ -188,13 +234,15 @@ class YoutubeResolver {
   }
 
   Future<List<MediaCandidate>> fetchHomeVideos({int max = 20, bool strongRandom = false}) async {
-    final now = DateTime.now();
-    if (_homeCacheAt != null && now.difference(_homeCacheAt!) < _homeCacheTtl && _homeCache.isNotEmpty) {
-      return _homeCache.take(max).toList();
+    if (_homeCache.isNotEmpty) return _homeCache.take(max).toList();
+
+    final saved = await _loadHomeSnapshot();
+    if (saved.isNotEmpty) {
+      _homeCache = saved;
+      return saved.take(max).toList();
     }
 
     if (_inBackoff()) {
-      if (_homeCache.isNotEmpty) return _homeCache.take(max).toList();
       throw Exception('请求过于频繁，稍后再试');
     }
 
@@ -214,12 +262,11 @@ class YoutubeResolver {
 
       final result = dedup.values.take(max).toList();
       _homeCache = result;
-      _homeCacheAt = now;
+      await _saveHomeSnapshot(result);
       _markSuccess();
       return result;
     } catch (e) {
       _markFailure();
-      if (_homeCache.isNotEmpty) return _homeCache.take(max).toList();
       rethrow;
     }
   }
