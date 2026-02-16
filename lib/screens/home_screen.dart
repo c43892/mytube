@@ -78,13 +78,13 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadHomeVideos();
   }
 
-  Future<void> _loadHomeVideos() async {
+  Future<void> _loadHomeVideos({bool strongRandom = false}) async {
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      final data = await _resolver.fetchHomeVideos();
+      final data = await _resolver.fetchHomeVideos(strongRandom: strongRandom);
       setState(() => _videos = data);
     } catch (e) {
       if (!mounted) return;
@@ -98,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _searchVideos() async {
     final q = _searchController.text.trim();
     if (q.isEmpty) {
-      _loadHomeVideos();
+      _loadHomeVideos(strongRandom: true);
       return;
     }
     setState(() {
@@ -210,7 +210,10 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text(l10n.appTitle),
         actions: [
-          IconButton(onPressed: (_busy && !_downloading) ? null : _loadHomeVideos, icon: const Icon(Icons.refresh)),
+          IconButton(
+            onPressed: (_busy && !_downloading) ? null : () => _loadHomeVideos(strongRandom: true),
+            icon: const Icon(Icons.refresh),
+          ),
         ],
       ),
       body: Padding(
@@ -292,30 +295,48 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: SizedBox(
-                                      width: 108,
-                                      height: 62,
-                                      child: Stack(
-                                        fit: StackFit.expand,
-                                        children: [
-                                          Image.network(
-                                            v.thumbnailUrl,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) => Container(
-                                              color: Theme.of(context).colorScheme.primaryContainer,
-                                              child: const Icon(Icons.play_circle_fill_rounded, size: 28),
+                                  SizedBox(
+                                    width: 112,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: SizedBox(
+                                            width: 108,
+                                            height: 62,
+                                            child: Stack(
+                                              fit: StackFit.expand,
+                                              children: [
+                                                Image.network(
+                                                  v.thumbnailUrl,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (_, __, ___) => Container(
+                                                    color: Theme.of(context).colorScheme.primaryContainer,
+                                                    child: const Icon(Icons.play_circle_fill_rounded, size: 28),
+                                                  ),
+                                                ),
+                                                Container(
+                                                  color: const Color(0x22000000),
+                                                  alignment: Alignment.bottomRight,
+                                                  padding: const EdgeInsets.all(4),
+                                                  child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          Container(
-                                            color: const Color(0x22000000),
-                                            alignment: Alignment.bottomRight,
-                                            padding: const EdgeInsets.all(4),
-                                            child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 16),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Center(
+                                          child: Text(
+                                            v.author,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(fontSize: 12, color: Colors.black87),
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   const SizedBox(width: 10),
@@ -344,21 +365,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                           ],
                                         ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          v.author,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 13),
-                                        ),
-                                        const SizedBox(height: 4),
+                                        const SizedBox(height: 10),
                                         Wrap(
                                           spacing: 8,
                                           runSpacing: 6,
                                           children: [
-                                            _metaChip(context, Icons.schedule, v.duration == null ? l10n.video : _fmt(v.duration!)),
                                             if (v.publishedAt != null)
                                               _metaChip(context, Icons.calendar_today, _relativeTime(v.publishedAt!)),
+                                            _metaChip(context, Icons.schedule, v.duration == null ? l10n.video : _fmt(v.duration!)),
                                           ],
                                         ),
                                       ],

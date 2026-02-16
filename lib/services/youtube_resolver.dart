@@ -1,8 +1,36 @@
+import 'dart:math';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import '../models/media_candidate.dart';
 
 class YoutubeResolver {
   final YoutubeExplode _yt = YoutubeExplode();
+  final Random _random = Random();
+  final Map<String, DateTime> _recentShown = {};
+
+  static const Duration _recentWindow = Duration(hours: 2);
+
+  static const List<String> _queryPool = [
+    'YouTube Trending',
+    'Viral videos',
+    'Top music video',
+    'Gaming highlights',
+    'Tech review',
+    'Travel vlog',
+    'Movie trailer',
+    'Live performance',
+    '热门 视频',
+    '今日热门',
+    '中文 热门 音乐',
+    '搞笑 视频',
+    '日语 音乐',
+    'K-pop MV',
+    'Spanish pop music',
+    'French songs',
+    'Documentary',
+    'Football highlights',
+    'Basketball highlights',
+    'Science explained',
+  ];
 
   Duration? _parseDuration(dynamic raw) {
     if (raw == null) return null;
@@ -79,21 +107,70 @@ class YoutubeResolver {
     );
   }
 
-  Future<List<MediaCandidate>> fetchHomeVideos({int max = 20}) async {
-    final queries = ['热门 视频', 'YouTube Trending', '今日热门'];
-    final Map<String, MediaCandidate> dedup = {};
+  List<T> _pickRandom<T>(List<T> list, int n) {
+    final copy = List<T>.from(list)..shuffle(_random);
+    final count = n.clamp(0, copy.length) as int;
+    return copy.take(count).toList();
+  }
 
-    for (final q in queries) {
+  void _pruneRecent() {
+    final now = DateTime.now();
+    final toRemove = <String>[];
+    _recentShown.forEach((id, at) {
+      if (now.difference(at) > _recentWindow) toRemove.add(id);
+    });
+    for (final id in toRemove) {
+      _recentShown.remove(id);
+    }
+  }
+
+  Future<List<MediaCandidate>> fetchHomeVideos({int max = 20, bool strongRandom = false}) async {
+    _pruneRecent();
+
+    final queryCount = strongRandom ? 6 : 4;
+    final sampledQueries = _pickRandom(_queryPool, queryCount);
+    final Map<String, MediaCandidate> dedup = {};
+    final List<MediaCandidate> fresh = [];
+    final List<MediaCandidate> recent = [];
+
+    for (final q in sampledQueries) {
       final list = await _yt.search.search(q, filter: TypeFilters.video);
-      for (final v in list.where(_isNormalVideo)) {
+      final filtered = list.where(_isNormalVideo).take(30).toList();
+      final picked = _pickRandom(filtered, strongRandom ? 8 : 6);
+      for (final v in picked) {
         final id = v.id.value.toString();
-        dedup[id] = _toCandidate(v);
-        if (dedup.length >= max) break;
+        if (dedup.containsKey(id)) continue;
+        final candidate = _toCandidate(v);
+        dedup[id] = candidate;
+        if (_recentShown.containsKey(id)) {
+          recent.add(candidate);
+        } else {
+          fresh.add(candidate);
+        }
       }
-      if (dedup.length >= max) break;
     }
 
-    return dedup.values.take(max).toList();
+    final ordered = <MediaCandidate>[...fresh, ...recent];
+
+    if (ordered.length < max) {
+      final fallback = await _yt.search.search('YouTube Trending', filter: TypeFilters.video);
+      for (final v in fallback.where(_isNormalVideo)) {
+        final id = v.id.value.toString();
+        if (dedup.containsKey(id)) continue;
+        final candidate = _toCandidate(v);
+        dedup[id] = candidate;
+        ordered.add(candidate);
+        if (ordered.length >= max) break;
+      }
+    }
+
+    final finalList = ordered.take(max).toList();
+    final now = DateTime.now();
+    for (final c in finalList) {
+      final id = c.sourceUrl.split('v=').last;
+      _recentShown[id] = now;
+    }
+    return finalList;
   }
 
   Future<List<MediaCandidate>> searchVideos(String keyword, {int max = 20}) async {
