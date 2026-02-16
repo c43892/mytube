@@ -1,24 +1,56 @@
-# mytube_player (Android MVP)
+# mytube_player
 
-纯客户端（无独立服务器）YouTube 链接临时下载+播放 Demo�?
-## 当前实现
-- 粘贴 YouTube 链接
-- 解析出音�?视频候选流（实时解析）
-- 下载到临时目�?- 直接播放（带进度条）
+A Flutter-based mobile YouTube temporary player focused on Android first, with iOS compatibility work in progress.
 
-## 技术栈
+## What it does
+
+- Shows a default video list on launch (no manual URL input required)
+- Supports keyword search
+- Filters out Shorts aggressively
+- Tap any list item to download and play
+- Supports background / lock-screen playback handoff
+- Stores playback history locally (offline)
+- Stores favorites locally (offline)
+- Supports multi-language UI with system-language auto selection
+
+## Tabs
+
+- **Default**: primary feed list
+- **History**: watched videos in time order
+- **Favorites**: starred videos in favorite order
+
+## Current behavior notes
+
+- Default list is memory-cached during app runtime
+- After app restart, the default list can refresh
+- History and Favorites are persisted locally on device
+
+## Tech stack
+
 - Flutter
-- youtube_explode_dart（解析）
-- media_kit（播放）
+- `youtube_explode_dart` (metadata / stream resolving)
+- `flutter_downloader` (download task handling)
+- `media_kit` + `audio_service` (playback and background audio)
+- `path_provider` (local storage)
 
-## 运行
+## Run (Android)
+
 ```bash
-cd C:\works\mytube_player
+cd C:\works\yt_temp_player
 flutter pub get
 flutter run -d android
 ```
 
-## MVP 下一步（已规划）
-1. 把下载器替换�?`flutter_downloader`，支持后台通知、暂停、恢复�?2. 增加下载任务页（进度、失败重试）�?3. 增加缓存管理（自动清理）�?
-## 注意
-- YouTube 解析规则会变化，解析模块需要可升级�?- 仅用于你有合法使用权的内容�?
+## Build APK
+
+```bash
+flutter build apk --debug
+```
+
+## iOS notes
+
+iOS project settings were prepared for compatibility (including background audio mode and downloader plugin registration callback), but final iOS validation must be done on macOS with Xcode and a signed device profile.
+
+## Disclaimer
+
+This project is for personal testing/education. Only use content you are legally allowed to access and play.
