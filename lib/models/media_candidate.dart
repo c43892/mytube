@@ -1,7 +1,7 @@
 class MediaCandidate {
   final String title;
   final String author;
-  final String publishedText;
+  final DateTime? publishedAt;
   final String thumbnailUrl;
   final Duration? duration;
   final String sourceUrl;
@@ -12,7 +12,7 @@ class MediaCandidate {
   const MediaCandidate({
     required this.title,
     required this.author,
-    required this.publishedText,
+    required this.publishedAt,
     required this.thumbnailUrl,
     required this.sourceUrl,
     required this.streamUrl,

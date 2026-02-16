@@ -39,9 +39,12 @@ class YoutubeResolver {
     return true;
   }
 
-  String _parsePublished(dynamic raw) {
-    final s = raw?.toString().trim() ?? '';
-    return s.isEmpty ? 'Unknown date' : s;
+  DateTime? _parsePublishedAt(dynamic raw) {
+    if (raw == null) return null;
+    if (raw is DateTime) return raw;
+    final s = raw.toString().trim();
+    if (s.isEmpty) return null;
+    return DateTime.tryParse(s);
   }
 
   String _thumbById(String id) => 'https://i.ytimg.com/vi/$id/hqdefault.jpg';
@@ -66,7 +69,7 @@ class YoutubeResolver {
     return MediaCandidate(
       title: v.title.toString(),
       author: _parseAuthor(v.author),
-      publishedText: _parsePublished(v.uploadDate),
+      publishedAt: _parsePublishedAt(v.uploadDate),
       thumbnailUrl: _parseThumb(v.thumbnails, id),
       duration: _parseDuration(v.duration),
       sourceUrl: url,
@@ -113,7 +116,7 @@ class YoutubeResolver {
     return MediaCandidate(
       title: video.title,
       author: _parseAuthor(video.author),
-      publishedText: '',
+      publishedAt: video.uploadDate,
       thumbnailUrl: _thumbById(video.id.value),
       duration: video.duration,
       sourceUrl: youtubeUrl,

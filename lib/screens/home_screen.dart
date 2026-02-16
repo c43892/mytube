@@ -295,8 +295,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(12),
                                     child: SizedBox(
-                                      width: 96,
-                                      height: 56,
+                                      width: 108,
+                                      height: 62,
                                       child: Stack(
                                         fit: StackFit.expand,
                                         children: [
@@ -357,8 +357,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           runSpacing: 6,
                                           children: [
                                             _metaChip(context, Icons.schedule, v.duration == null ? l10n.video : _fmt(v.duration!)),
-                                            if (v.publishedText.isNotEmpty)
-                                              _metaChip(context, Icons.calendar_today, v.publishedText),
+                                            if (v.publishedAt != null)
+                                              _metaChip(context, Icons.calendar_today, _relativeTime(v.publishedAt!)),
                                           ],
                                         ),
                                       ],
@@ -394,6 +394,15 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  String _relativeTime(DateTime publishedAt) {
+    final now = DateTime.now();
+    final diff = now.difference(publishedAt);
+    if (diff.inDays < 1) return '今天';
+    if (diff.inDays < 30) return '${diff.inDays}天前';
+    if (diff.inDays < 365) return '${(diff.inDays / 30).floor()}个月前';
+    return '${(diff.inDays / 365).floor()}年前';
   }
 
   String _fmt(Duration d) {
