@@ -241,13 +241,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.appTitle),
-        actions: [
-          if (_tabIndex == 0)
-            IconButton(
-              onPressed: (_busy && !_downloading) ? null : () => _loadHomeVideos(strongRandom: true),
-              icon: const Icon(Icons.refresh),
-            ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
@@ -293,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedIndex: _tabIndex,
         onDestinationSelected: (idx) => setState(() => _tabIndex = idx),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.shuffle_rounded), label: '随机'),
+          NavigationDestination(icon: Icon(Icons.shuffle_rounded), label: '默认'),
           NavigationDestination(icon: Icon(Icons.history_rounded), label: '历史'),
           NavigationDestination(icon: Icon(Icons.star_rounded), label: '收藏'),
         ],
