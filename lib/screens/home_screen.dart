@@ -14,7 +14,8 @@ import '../services/youtube_resolver.dart';
 import 'player_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String? initialQuery;
+  const HomeScreen({super.key, this.initialQuery});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -70,7 +71,12 @@ class _HomeScreenState extends State<HomeScreen> {
           _activeTaskId = null;
         });
 
-        Navigator.push(context, MaterialPageRoute(builder: (_) => PlayerScreen(filePath: _activeFilePath!, isAudio: false)));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PlayerScreen(filePath: _activeFilePath!, isAudio: false, author: item?.author),
+          ),
+        );
       } else if (status == DownloadTaskStatus.failed.index || status == DownloadTaskStatus.canceled.index) {
         if (!mounted) return;
         final l10n = AppLocalizations.of(context)!;
@@ -89,7 +95,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _bootstrap() async {
     await _reloadLibraryData();
-    await _loadHomeVideos();
+    final q = widget.initialQuery?.trim() ?? '';
+    if (q.isNotEmpty) {
+      _searchController.text = q;
+      await _searchVideosByQuery(q);
+    } else {
+      await _loadHomeVideos();
+    }
   }
 
   Future<void> _reloadLibraryData() async {
@@ -120,12 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _searchVideos() async {
-    final q = _searchController.text.trim();
-    if (q.isEmpty) {
-      _loadHomeVideos(strongRandom: true);
-      return;
-    }
+  Future<void> _searchVideosByQuery(String q) async {
     setState(() {
       _busy = true;
       _error = null;
@@ -141,6 +148,15 @@ class _HomeScreenState extends State<HomeScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _searchVideos() async {
+    final q = _searchController.text.trim();
+    if (q.isEmpty) {
+      _loadHomeVideos(strongRandom: true);
+      return;
+    }
+    await _searchVideosByQuery(q);
   }
 
   Future<void> _cancelActiveDownloadIfAny() async {
@@ -183,7 +199,12 @@ class _HomeScreenState extends State<HomeScreen> {
           _downloadingForUrl = null;
         });
 
-        Navigator.push(context, MaterialPageRoute(builder: (_) => PlayerScreen(filePath: cached, isAudio: false)));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PlayerScreen(filePath: cached, isAudio: false, author: item.author),
+          ),
+        );
         return;
       }
 
@@ -367,12 +388,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 6),
                     Center(
-                      child: Text(
-                        v.author,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 12, color: Colors.black87),
+                      child: InkWell(
+                        onTap: () {
+                          _searchController.text = v.author;
+                          _searchVideosByQuery(v.author);
+                        },
+                        child: Text(
+                          v.author,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
                       ),
                     ),
                   ],

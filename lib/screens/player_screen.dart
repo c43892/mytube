@@ -4,11 +4,13 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import '../main.dart';
 import '../services/audio_handler.dart';
+import 'home_screen.dart';
 
 class PlayerScreen extends StatefulWidget {
   final String filePath;
   final bool isAudio;
-  const PlayerScreen({super.key, required this.filePath, required this.isAudio});
+  final String? author;
+  const PlayerScreen({super.key, required this.filePath, required this.isAudio, this.author});
 
   @override
   State<PlayerScreen> createState() => _PlayerScreenState();
@@ -114,7 +116,22 @@ class _PlayerScreenState extends State<PlayerScreen> with WidgetsBindingObserver
               ),
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
+          if ((widget.author ?? '').trim().isNotEmpty)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => HomeScreen(initialQuery: widget.author)),
+                  );
+                },
+                icon: const Icon(Icons.person_search, size: 18),
+                label: Text(widget.author!),
+              ),
+            ),
+          const SizedBox(height: 4),
           Container(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
             decoration: BoxDecoration(
