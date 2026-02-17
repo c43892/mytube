@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -8,6 +9,11 @@ import '../models/media_candidate.dart';
 
 class YoutubeResolver {
   final YoutubeExplode _yt = YoutubeExplode();
+  final Dio _dio = Dio();
+
+  static const List<String> _resolverServers = [
+    'http://192.168.2.30:8787',
+  ];
 
   List<MediaCandidate> _homeCache = const [];
 
@@ -242,7 +248,77 @@ class YoutubeResolver {
     }
   }
 
+  String _normalizeServer(String s) {
+    final t = s.trim();
+    if (t.startsWith('http://') || t.startsWith('https://')) return t;
+    return 'http://$t';
+  }
+
+  Future<MediaCandidate?> _resolveViaServer(String server, String youtubeUrl) async {
+    try {
+      final r = await _dio.post(
+        '${_normalizeServer(server)}/resolve',
+        data: {'url': youtubeUrl},
+        options: Options(
+          sendTimeout: const Duration(seconds: 6),
+          receiveTimeout: const Duration(seconds: 12),
+          contentType: Headers.jsonContentType,
+        ),
+      );
+      final root = r.data;
+      if (root is! Map) return null;
+      if (root['ok'] != true) return null;
+      final data = root['data'];
+      if (data is! Map) return null;
+
+      final title = (data['title'] ?? '').toString().trim();
+      final uploader = (data['uploader'] ?? '').toString().trim();
+      final duration = data['duration'];
+      final durationObj = duration is num ? Duration(seconds: duration.floor()) : null;
+
+      String? streamUrl;
+      final muxed = (data['bestMuxedUrl'] ?? '').toString();
+      if (muxed.isNotEmpty) {
+        streamUrl = muxed;
+      } else {
+        final bestVideo = (data['bestVideoUrl'] ?? '').toString();
+        if (bestVideo.isNotEmpty) {
+          streamUrl = bestVideo;
+        } else if (data['formats'] is List) {
+          for (final f in (data['formats'] as List)) {
+            if (f is Map && (f['url'] ?? '').toString().isNotEmpty) {
+              streamUrl = (f['url']).toString();
+              break;
+            }
+          }
+        }
+      }
+
+      if (streamUrl == null || streamUrl.isEmpty) return null;
+
+      final id = Uri.parse(youtubeUrl).queryParameters['v'] ?? '';
+      return MediaCandidate(
+        title: title.isEmpty ? 'video' : title,
+        author: _parseAuthor(uploader),
+        publishedAt: null,
+        thumbnailUrl: id.isEmpty ? '' : _thumbById(id),
+        duration: durationObj,
+        sourceUrl: youtubeUrl,
+        streamUrl: streamUrl,
+        isAudio: false,
+        fileExt: 'mp4',
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<MediaCandidate> resolveVideoForDownload(String youtubeUrl) async {
+    for (final s in _resolverServers) {
+      final resolved = await _resolveViaServer(s, youtubeUrl);
+      if (resolved != null) return resolved;
+    }
+
     final video = await _yt.videos.get(youtubeUrl);
     final manifest = await _yt.videos.streamsClient.getManifest(video.id);
     final muxedStreams = manifest.muxed.toList();
@@ -265,5 +341,8 @@ class YoutubeResolver {
     );
   }
 
-  void dispose() => _yt.close();
+  void dispose() {
+    _dio.close();
+    _yt.close();
+  }
 }
